@@ -1,57 +1,45 @@
 import React from "react";
-import { render, fireEvent, waitForElement } from '@testing-library/react';
-import ContactForm from './ContactForm.js';
+import ContactForm from "./ContactForm.js";
+import { render, fireEvent, waitForElement } from "@testing-library/react";
 
 
+test("firstName, lastName, email, message inputs are rendered", () => {
+    const { getByLabelText } = render(<ContactForm />);
+ getByLabelText(/first name/i);
+ getByLabelText(/last name/i);
+ getByLabelText(/email/i);
+ getByLabelText(/message/i);
+});
 
-//fails because originally an ID was not set on the input forms to correspond with labels. 
-//changed and added ID's so this now passes
-test("check if inputs are allowed", () => {
-    const {getByLabelText, getByText, getByTestId} = render(<ContactForm/>);
-
-    //querying for all the input nodes
+test("all input fields are rendered and functional", async () => {
+    const { getByLabelText, getByTestId, getByText, queryByTestId } = render(
+        <ContactForm />
+    );
     const firstNameInput = getByLabelText(/first name/i);
     const lastNameInput = getByLabelText(/last name/i);
     const emailInput = getByLabelText(/email/i);
     const messageInput = getByLabelText(/message/i);
-
-    //use the change event to add text to each input
-    fireEvent.change(firstNameInput, {target: {value: "First"}});
-    fireEvent.change(lastNameInput, {target: {value: "Last"}});
-    fireEvent.change(emailInput, {target: {value: "Email@email.com"}});
-    fireEvent.change(messageInput, {target: {value: "Test Message"}});
-
-    expect(firstNameInput.value).toBe("First");
-    expect(lastNameInput.value).toBe("Last");
-    expect(emailInput.value).toBe("Email@email.com");
+    
+    fireEvent.change(firstNameInput, { target: { value: "Test First Name" } });
+    fireEvent.change(lastNameInput, { target: { value: "Test Last Name" } });
+    fireEvent.change(emailInput, { target: { value: "TestEmail@email.com" } });
+    fireEvent.change(messageInput, { target: { value: "Test Message" } });
+    
+    expect(firstNameInput.value).toBe("Test First Name");
+    expect(lastNameInput.value).toBe("Test Last Name");
+    expect(emailInput.value).toBe("TestEmail@email.com");
     expect(messageInput.value).toBe("Test Message");
-}) 
+    expect(emailInput).toHaveAttribute("placeholder");
+    
+    
+    fireEvent.click(getByTestId("submit-button"));
+    
+    await waitForElement(() =>
+        getByText("Looks like there was an error: maxLength")
+    );
+    expect(queryByTestId("submit-data")).toBeFalsy();
+});
 
-test("check if inputs are submitted properly", async () => {
-    const {getByLabelText, getByText, getByTestId} = render(<ContactForm/>);
 
-    //querying for all the input nodes
-    const firstNameInput = getByLabelText(/first name/i);
-    const lastNameInput = getByLabelText(/last name/i);
-    const emailInput = getByLabelText(/email/i);
-    const messageInput = getByLabelText(/message/i);
 
-    //use the change event to add text to each input
-    fireEvent.change(firstNameInput, {target: {value: "Brandi"}});
-    fireEvent.change(lastNameInput, {target: {value: "Jones"}});
-    fireEvent.change(emailInput, {target: {value: "Email@email.com"}});
-    fireEvent.change(messageInput, {target: {value: "Test Message"}});
 
-    expect(firstNameInput.value).toBe("Brandi");
-    expect(lastNameInput.value).toBe("Jones");
-    expect(emailInput.value).toBe("Email@email.com");
-    expect(messageInput.value).toBe("Test Message");
-
-    //click button
-    fireEvent.click(getByTestId(/submit/i));
-
-    await waitForElement(() => {
-        
-    })
-
-}) 
